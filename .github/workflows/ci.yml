@@ -16,11 +16,20 @@ jobs:
       - name: Get release info
         id: release-info
         run: |
-          echo "Release tag: $(jq -r '.release.tag_name' $GITHUB_EVENT_PATH)"
-          echo "Release body: $(jq -r '.release.body' $GITHUB_EVENT_PATH)"
-          echo "Release name: $(jq -r '.release.name' $GITHUB_EVENT_PATH)"
-
-      # Optionally, use the fetched release info in further steps
-      - name: Use release info
+          # Extract release body
+          RELEASE_BODY=$(jq -r '.release.body' $GITHUB_EVENT_PATH)
+          # Create a markdown file with the release body
+          echo "$RELEASE_BODY" > RELEASE_NOTES.md
+      
+      # Configure git for committing the new file
+      - name: Configure Git
         run: |
-          echo "Using release tag: ${{ steps.release-info.outputs.tag_name }}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      # Commit and push the markdown file
+      - name: Commit and Push Release Notes
+        run: |
+          git add RELEASE_NOTES.md
+          git commit -m "Add release notes for release ${{ github.event.release.tag_name }}"
+          git push
