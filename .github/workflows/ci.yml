@@ -24,12 +24,19 @@ jobs:
           # Extract release body
           RELEASE_BODY=$(jq -r '.release.body' $GITHUB_EVENT_PATH)
           # Create a markdown file with the release body
-          echo "$RELEASE_BODY" > RELEASE_NOTES.md
+           RELEASE_BODY=$(jq -r '.release.body' $GITHUB_EVENT_PATH)
+          RELEASE_TAG=$(jq -r '.release.tag_name' $GITHUB_EVENT_PATH)
+          RELEASE_NAME=$(jq -r '.release.name' $GITHUB_EVENT_PATH)
+          # Create a markdown file with the release body
+          if [ ! -d "releases" ]; then
+            mkdir releases
+          fi
+          echo "# V$RELEASE_TAG - $RELEASE_NAME\n$RELEASE_BODY" > "releases/V$RELEASE_TAG - $RELEASE_NAME.md"
       
       # Configure git for committing the new file
       - name: Configure Git
         run: |
-          git config --global user.name "github-actions[bot]"
+          git config --global user.name "KSI Release Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
       # Commit and push the markdown file
