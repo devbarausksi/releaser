@@ -9,19 +9,20 @@ jobs:
     name: Build runner
     runs-on: ubuntu-latest
     steps:
-      # Check out the repository
-      - uses: actions/checkout@v4
-      
+      # Check out the repository and set up the correct branch
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main # Replace 'main' with your branch name if different
+
       # Fetch release content
       - name: Get release info
         id: release-info
         run: |
           # Extract release body
           RELEASE_BODY=$(jq -r '.release.body' $GITHUB_EVENT_PATH)
-          RELEASE_TAG=$(jq -r '.release.tag_name' $GITHUB_EVENT_PATH)
-          RELEASE_NAME=$(jq -r '.release.name' $GITHUB_EVENT_PATH)
           # Create a markdown file with the release body
-          echo "# V$RELEASE_TAG - $RELEASE_NAME\n$RELEASE_BODY" > "V$RELEASE_TAG - $RELEASE_NAME.md"
+          echo "$RELEASE_BODY" > RELEASE_NOTES.md
       
       # Configure git for committing the new file
       - name: Configure Git
@@ -34,4 +35,5 @@ jobs:
         run: |
           git add RELEASE_NOTES.md
           git commit -m "Add release notes for release ${{ github.event.release.tag_name }}"
-          git push
+          # Push the changes to the same branch (e.g., 'main')
+          git push origin HEAD:main # Replace 'main' with the target branch if necessary
