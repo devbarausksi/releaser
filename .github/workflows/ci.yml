@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build runner
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Check out the repository and set up the correct branch
       - name: Check out repository
@@ -33,7 +35,8 @@ jobs:
       # Commit and push the markdown file
       - name: Commit and Push Release Notes
         run: |
-          git add RELEASE_NOTES.md
+          git add .
           git commit -m "Add release notes for release ${{ github.event.release.tag_name }}"
           # Push the changes to the same branch (e.g., 'main')
-          git push origin HEAD:main # Replace 'main' with the target branch if necessary
+          git remote set-url origin https://devbarausksi:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin main
