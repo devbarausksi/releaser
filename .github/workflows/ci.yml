@@ -31,7 +31,8 @@ jobs:
           if [ ! -d "releases" ]; then
             mkdir releases
           fi
-          echo "# V$RELEASE_TAG - $RELEASE_NAME\n$RELEASE_BODY" > "releases/V$RELEASE_TAG - $RELEASE_NAME.md"
+          echo "# V$RELEASE_TAG - $RELEASE_NAME" > "releases/V$RELEASE_TAG - $RELEASE_NAME.md"
+          echo "$RELEASE_BODY" >> "releases/V$RELEASE_TAG - $RELEASE_NAME.md"
       
       # Configure git for committing the new file
       - name: Configure Git
