@@ -46,15 +46,18 @@ jobs:
             exit 1
           fi
 
-          echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
-  
-          cp .changeset/$FILE releases/$FILE
+          tail -n +4 .changeset/$FILE > releases/${FILE}
       
       - name: Bump up version
         run: |
           npm install --omit=dev
           npx changeset version
           npx changeset tag
+
+          TAG=v$(node -p "require('./package.json').version")
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+
+          mv releases/$FILE releases/$TAG.md
 
       - name: Commit and push markdown file to current branch
         run: |
@@ -63,17 +66,10 @@ jobs:
           git add .
           git commit -m "Bump up version"
           git push origin main
-          git push origin --tags
-
-      - name: Create Release
-        id: release
-        run: |
-          TAG=$(node -p "require('./package.json').version")
-          echo "RELEASE_TAG=v$TAG" >> $GITHUB_ENV
-
+          
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ env.RELEASE_TAG }}
-          bodyFile: releases/${{ env.RELEASE_FILE }}
+          bodyFile: releases/${{ env.RELEASE_TAG }}.md
 
       
