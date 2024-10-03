@@ -1,5 +1,13 @@
 # releaser
 
+## 1.0.2
+
+### Patch Changes
+
+- 15d3f5a: # PATCH 🎇 Alguma versão nova
+
+  teste
+
 ## 1.0.1
 
 ### Patch Changes
