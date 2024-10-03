@@ -38,6 +38,10 @@ jobs:
           fi
 
           FILE=$(basename $(ls .changeset/pr-*.md))
+          if [ -z "$FILE" ]; then
+            echo "No changeset file found"
+            exit 1
+          fi
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
