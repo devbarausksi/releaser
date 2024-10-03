@@ -68,7 +68,8 @@ jobs:
       - name: Create Release
         id: release
         run: |
-          echo "RELEASE_TAG=v$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
+          TAG=$(node -p "require('./package.json').version")
+          echo "RELEASE_TAG=v$TAG" >> $GITHUB_ENV
 
       - uses: ncipollo/release-action@v1
         with:
