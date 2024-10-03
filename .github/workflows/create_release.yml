@@ -11,6 +11,9 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+
     - uses: actions/setup-node@v4
 
     - name: Get PR details
@@ -22,7 +25,7 @@ jobs:
 
     - name: Create Markdown file
       run: |
-        VERSION_BUMP=$(PR_TITLE="${{ env.PR_TITLE }}" node -p "process.env.PR_TITLE.split('|')[0].replaceAll(/\W/g, '').toLowerCase()")
+        VERSION_BUMP=$(PR_TITLE="${{ env.PR_TITLE }}" node -p "process.env.PR_TITLE.split(' ')[0].replaceAll(/\W/g, '').toLowerCase()")
         PACKAGE_NAME=$(node -p "require('./package.json').name")
         FILENAME="pr-${{ github.event.number }}.md"
         FILEPATH=".changeset/$FILENAME"
@@ -37,7 +40,6 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout ${{ env.PR_BRANCH }}
         git add .
         git commit -m "Add PR #${{ github.event.number }} details"
         git push origin ${{ env.PR_BRANCH }}
