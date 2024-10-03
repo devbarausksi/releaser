@@ -43,7 +43,7 @@ jobs:
             echo "No changeset file found"
             exit 1
           fi
-          
+
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
@@ -54,13 +54,6 @@ jobs:
           npx changeset version
           npx changeset tag
 
-          TAG=$(git tag --sort=taggerdate | tail -1)
-          if [ -z "$TAG" ]; then
-            echo "No git tags found"
-            exit 1
-          fi
-          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
-
       - name: Commit and push markdown file to current branch
         run: |
           git config --global user.name "github-actions[bot]"
@@ -69,6 +62,11 @@ jobs:
           git commit -m "Bump up version"
           git push origin main
           git push origin --tags
+
+      - name: Create Release
+        id: release
+        run: |
+          echo "RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - uses: ncipollo/release-action@v1
         with:
