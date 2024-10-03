@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -19,17 +21,45 @@ jobs:
 
       - uses: actions/setup-node@v4
 
-      - name: Copy changelogs
+      - name: Check files and copy to releases folder
         run: |
+          FILES_COUNT=$(ls .changeset/pr-*.md | wc -l)
+
+          if [ $FILES_COUNT -eq 0 ]; then
+            echo "No changeset files found"
+            exit 1
+          fi
+
+          if [ $FILES_COUNT -gt 1 ]; then
+            echo "More than one changeset file found"
+            exit 1
+          fi
+
           if [ ! -d "releases" ]; then
             mkdir releases
           fi
-          cp -r .changeset/pr-*.md releases/
+
+          FILE=$(basename $(ls .changeset/pr-*.md))
+
+          if [ -z "$FILE" ]; then
+            echo "No changeset file found"
+            exit 1
+          fi
+
+          tail -n +4 .changeset/$FILE > releases/${FILE}
       
       - name: Bump up version
         run: |
-          npx changesets version
-          npx changesets publish
+          FILE=$(basename $(ls .changeset/pr-*.md))
+
+          npm install --omit=dev
+          npx changeset version
+          npx changeset tag
+
+          TAG=v$(node -p "require('./package.json').version")
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
+
+          mv releases/$FILE releases/$TAG.md
 
       - name: Commit and push markdown file to current branch
         run: |
@@ -37,4 +67,11 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Bump up version"
-          git push origin main --follow-tags
+          git push origin main
+          
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.RELEASE_TAG }}
+          bodyFile: releases/${{ env.RELEASE_TAG }}.md
+
+      
