@@ -41,14 +41,14 @@ jobs:
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
-          echo "RELEASE_CONTENT=$(cat \"releases/$FILE\")" >> $GITHUB_ENV
+          echo "RELEASE_CONTENT=$(cat \".changeset/$FILE\")" >> $GITHUB_ENV
       
       - name: Bump up version
         run: |
           npm install --omit=dev
           npx changeset version
           npx changeset tag
-          echo "RELEASE_TAG=$( git tag --sort=taggerdate | tail -1 )" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$(git tag --sort=taggerdate | tail -1)" >> $GITHUB_ENV
 
       - name: Commit and push markdown file to current branch
         run: |
