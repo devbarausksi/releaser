@@ -37,10 +37,11 @@ jobs:
             mkdir releases
           fi
 
-          echo "RELEASE_FILE=$(basename $FILES)" >> $GITHUB_ENV
-
-          cp .changeset/${{ env.RELEASE_FILE }} releases/${{ env.RELEASE_FILE }}
-          echo "RELEASE_CONTENT=$(cat releases/$RELEASE_FILE)" >> $GITHUB_ENV
+          FILE=$(basename $FILES)
+          echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
+  
+          cp .changeset/$FILE releases/$FILE
+          echo "RELEASE_CONTENT=$(cat releases/$FILE)" >> $GITHUB_ENV
       
       - name: Bump up version
         run: |
