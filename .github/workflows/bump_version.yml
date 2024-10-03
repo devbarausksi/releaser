@@ -41,14 +41,27 @@ jobs:
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
-          echo "RELEASE_CONTENT=$(cat \".changeset/$FILE\")" >> $GITHUB_ENV
+          
+          CONTENT=$(cat ".changeset/$FILE")
+          if [ -z "$CONTENT" ]; then
+            echo "Changeset file is empty"
+            exit 1
+          fi
+
+          echo "RELEASE_CONTENT=$CONTENT" >> $GITHUB_ENV
       
       - name: Bump up version
         run: |
           npm install --omit=dev
           npx changeset version
           npx changeset tag
-          echo "RELEASE_TAG=$(git tag --sort=taggerdate | tail -1)" >> $GITHUB_ENV
+
+          TAG=$(git tag --sort=taggerdate | tail -1)
+          if [ -z "$TAG" ]; then
+            echo "No git tags found"
+            exit 1
+          fi
+          echo "RELEASE_TAG=$TAG" >> $GITHUB_ENV
 
       - name: Commit and push markdown file to current branch
         run: |
@@ -56,7 +69,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Bump up version"
-          git push origin main --follow-tags
+          git push origin main
+          git push origin --tags
 
       - uses: ncipollo/release-action@v1
         with:
