@@ -29,12 +29,12 @@ jobs:
         PACKAGE_NAME=$(node -p "require('./package.json').name")
         FILENAME="pr-${{ github.event.number }}.md"
         FILEPATH=".changeset/$FILENAME"
-        echo "---" > $FILENAME
-        echo "\"$PACKAGE_NAME\": $VERSION_BUMP" >> $FILENAME
-        echo "---" >> $FILENAME
-        echo "# ${{ env.PR_TITLE }}" >> $FILENAME        
-        echo "" >> $FILENAME
-        echo "${{ env.PR_BODY }}" >> $FILENAME
+        echo "---" > $FILEPATH
+        echo "\"$PACKAGE_NAME\": $VERSION_BUMP" >> $FILEPATH
+        echo "---" >> $FILEPATH
+        echo "# ${{ env.PR_TITLE }}" >> $FILEPATH        
+        echo "" >> $FILEPATH
+        echo "${{ env.PR_BODY }}" >> $FILEPATH
 
     - name: Commit and push markdown file to current branch
       run: |
