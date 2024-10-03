@@ -23,12 +23,12 @@ jobs:
         run: |
           FILES=$(ls .changeset/pr-*.md)
 
-          if [ ${#files[@]} -eq 0 ]; then
+          if [ ${#FILES[@]} -eq 0 ]; then
             echo "No changeset files found"
             exit 1
           fi
 
-          if [ ${#files[@]} -gt 1 ]; then
+          if [ ${#FILES[@]} -gt 1 ]; then
             echo "More than one changeset file found"
             exit 1
           fi
