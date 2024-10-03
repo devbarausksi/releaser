@@ -28,8 +28,8 @@ jobs:
       
       - name: Bump up version
         run: |
-          npx changesets version
-          npx changesets publish
+          npx changeset version
+          npx changeset publish
 
       - name: Commit and push markdown file to current branch
         run: |
