@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -66,7 +68,7 @@ jobs:
       - name: Create Release
         id: release
         run: |
-          echo "RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          echo "RELEASE_TAG=v$(node -p \"require('./package.json').version\")" >> $GITHUB_ENV
 
       - uses: ncipollo/release-action@v1
         with:
