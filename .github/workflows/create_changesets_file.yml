@@ -20,8 +20,6 @@ jobs:
       id: pr_details
       run: |
         echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-        echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
-        echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
 
     - name: Create Markdown file
       run: |
@@ -34,7 +32,7 @@ jobs:
         echo "---" >> $FILEPATH
         echo "# ${{ env.PR_TITLE }}" >> $FILEPATH        
         echo "" >> $FILEPATH
-        echo "${{ env.PR_BODY }}" >> $FILEPATH
+        echo "${{ github.event.pull_request.body }}" >> $FILEPATH
 
     - name: Commit and push markdown file to current branch
       run: |
@@ -43,4 +41,4 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add .
         git commit -m "Add PR #${{ github.event.number }} details"
-        git push origin ${{ env.PR_BRANCH }}
+        git push origin ${{ github.event.pull_request.head.ref }}
