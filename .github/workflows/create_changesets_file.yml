@@ -1,0 +1,46 @@
+name: Create Changesets File
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  create-markdown:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+
+    - uses: actions/setup-node@v4
+
+    - name: Get PR details
+      id: pr_details
+      run: |
+        echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+        echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
+        echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+
+    - name: Create Markdown file
+      run: |
+        VERSION_BUMP=$(PR_TITLE="${{ env.PR_TITLE }}" node -p "process.env.PR_TITLE.split(' ')[0].replaceAll(/\W/g, '').toLowerCase()")
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        FILENAME="pr-${{ github.event.number }}.md"
+        FILEPATH=".changeset/$FILENAME"
+        echo "---" > $FILEPATH
+        echo "\"$PACKAGE_NAME\": $VERSION_BUMP" >> $FILEPATH
+        echo "---" >> $FILEPATH
+        echo "# ${{ env.PR_TITLE }}" >> $FILEPATH        
+        echo "" >> $FILEPATH
+        echo "${{ env.PR_BODY }}" >> $FILEPATH
+
+    - name: Commit and push markdown file to current branch
+      run: |
+        git diff --exit-code --quiet && exit 0
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Add PR #${{ github.event.number }} details"
+        git push origin ${{ env.PR_BRANCH }}

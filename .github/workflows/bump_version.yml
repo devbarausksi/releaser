@@ -1,0 +1,40 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  runner:
+    name: Runner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+
+      - name: Copy changelogs
+        run: |
+          if [ ! -d "releases" ]; then
+            mkdir releases
+          fi
+          cp -r .changeset/pr-*.md releases/
+      
+      - name: Bump up version
+        run: |
+          npx changesets version
+          npx changesets publish
+
+      - name: Commit and push markdown file to current branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Bump up version"
+          git push origin main --follow-tags
