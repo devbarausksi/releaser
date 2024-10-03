@@ -21,14 +21,14 @@ jobs:
 
       - name: Check files and get content
         run: |
-          FILES=$(ls .changeset/pr-*.md)
+          FILES_COUNT=$(ls .changeset/pr-*.md | wc -l)
 
-          if [ ${#FILES[@]} -eq 0 ]; then
+          if [ $FILES_COUNT -eq 0 ]; then
             echo "No changeset files found"
             exit 1
           fi
 
-          if [ ${#FILES[@]} -gt 1 ]; then
+          if [ $FILES_COUNT -gt 1 ]; then
             echo "More than one changeset file found"
             exit 1
           fi
@@ -37,7 +37,7 @@ jobs:
             mkdir releases
           fi
 
-          FILE=$(basename $FILES)
+          FILE=$(basename $(ls .changeset/pr-*.md))
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
