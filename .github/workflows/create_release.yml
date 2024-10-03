@@ -10,27 +10,31 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Get PR details
       id: pr_details
       run: |
         echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
         echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
+        echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
 
     - name: Create Markdown file
       run: |
         FILENAME="pr-${{ github.event.number }}.md"
-        echo "# Pull Request #${{ github.event.number }}" >> $FILENAME
+        echo "# Pull Request #${{ github.event.number }}" > $FILENAME
         echo "## Title" >> $FILENAME
         echo "${{ env.PR_TITLE }}" >> $FILENAME
         echo "" >> $FILENAME
         echo "## Description" >> $FILENAME
         echo "${{ env.PR_BODY }}" >> $FILENAME
 
-    - name: Commit and push markdown file
+    - name: Commit and push markdown file to current branch
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout ${{ env.PR_BRANCH }}
         git add pr-${{ github.event.number }}.md
         git commit -m "Add PR #${{ github.event.number }} details"
-        git push
+        git push origin ${{ env.PR_BRANCH }}
