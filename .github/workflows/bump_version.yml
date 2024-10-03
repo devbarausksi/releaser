@@ -33,7 +33,7 @@ jobs:
             exit 1
           fi
 
-          echo "RELEASE_FILE=$files[0]" >> $GITHUB_ENV
+          echo "RELEASE_FILE=$FILES[0]" >> $GITHUB_ENV
           echo "RELEASE_CONTENT=$(cat $RELEASE_FILE)" >> $GITHUB_ENV
 
       - name: Copy changelogs
