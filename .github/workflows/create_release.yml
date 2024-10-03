@@ -10,26 +10,27 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.pull_request.head.ref }}
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
 
     - name: Get PR details
       id: pr_details
       run: |
-        echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-        echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
-        echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_ENV
+        PR_TITLE=${{ github.event.pull_request.title }}
+        PR_BODY=${{ github.event.pull_request.body }}
+        PR_BRANCH=${{ github.event.pull_request.head.ref }}
 
     - name: Create Markdown file
       run: |
+        VERSION_BUMP=$(PR_TITLE node -p "process.env.PR_TITLE.split('|')[0].replaceAll(/\W/g, '').toLowerCase()")
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
         FILENAME="pr-${{ github.event.number }}.md"
-        echo "# Pull Request #${{ github.event.number }}" > $FILENAME
-        echo "## Title" >> $FILENAME
-        echo "${{ env.PR_TITLE }}" >> $FILENAME
+        FILEPATH=".changeset/$FILENAME"
+        echo "---" > $FILENAME
+        echo "\"$PACKAGE_NAME\": $VERSION_BUMP" >> $FILENAME
+        echo "---" >> $FILENAME
+        echo "# ${{ env.PR_TITLE }}" >> $FILENAME        
         echo "" >> $FILENAME
-        echo "## Description" >> $FILENAME
         echo "${{ env.PR_BODY }}" >> $FILENAME
 
     - name: Commit and push markdown file to current branch
