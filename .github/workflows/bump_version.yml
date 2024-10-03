@@ -33,22 +33,22 @@ jobs:
             exit 1
           fi
 
-          FILES=$(basename $FILES)
-          echo "RELEASE_FILE=$FILES" >> $GITHUB_ENV
-          echo "RELEASE_CONTENT=$(cat .changeset/$RELEASE_FILE)" >> $GITHUB_ENV
-
-      - name: Copy changelogs
-        run: |
           if [ ! -d "releases" ]; then
             mkdir releases
           fi
+
           cp .changeset/${{ env.RELEASE_FILE }} releases/${{ env.RELEASE_FILE }}
+
+          FILES=$(basename $FILES)
+          echo "RELEASE_FILE=$FILES" >> $GITHUB_ENV
+          echo "RELEASE_CONTENT=$(cat releases/$FILES)" >> $GITHUB_ENV
       
       - name: Bump up version
         run: |
           npm install --omit=dev
           npx changeset version
           npx changeset tag
+          echo "RELEASE_TAG=$( git tag --sort=taggerdate | tail -1 )" >> $GITHUB_ENV
 
       - name: Commit and push markdown file to current branch
         run: |
@@ -60,7 +60,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          tag: $( git tag --sort=taggerdate | tail -1 )
+          tag: ${{ env.RELEASE_TAG }}
           body: ${{ env.RELEASE_CONTENT }}
 
       
