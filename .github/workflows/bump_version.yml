@@ -21,7 +21,7 @@ jobs:
 
       - name: Check files and get content
         run: |
-          FILES = $(ls .changeset/pr-*.md)
+          FILES=$(ls .changeset/pr-*.md)
 
           if [ ${#files[@]} -eq 0 ]; then
             echo "No changeset files found"
@@ -34,7 +34,7 @@ jobs:
           fi
 
           echo "RELEASE_FILE=$files[0]" >> $GITHUB_ENV
-          echo "RELEASE_CONTENT=$(cat $files[0])" >> $GITHUB_ENV
+          echo "RELEASE_CONTENT=$(cat $RELEASE_FILE)" >> $GITHUB_ENV
 
       - name: Copy changelogs
         run: |
