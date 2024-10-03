@@ -50,6 +50,8 @@ jobs:
       
       - name: Bump up version
         run: |
+          FILE=$(basename $(ls .changeset/pr-*.md))
+
           npm install --omit=dev
           npx changeset version
           npx changeset tag
