@@ -1,0 +1,36 @@
+name: PR to Markdown
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  create-markdown:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Get PR details
+      id: pr_details
+      run: |
+        echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+        echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
+
+    - name: Create Markdown file
+      run: |
+        FILENAME="pr-${{ github.event.number }}.md"
+        echo "# Pull Request #${{ github.event.number }}" >> $FILENAME
+        echo "## Title" >> $FILENAME
+        echo "${{ env.PR_TITLE }}" >> $FILENAME
+        echo "" >> $FILENAME
+        echo "## Description" >> $FILENAME
+        echo "${{ env.PR_BODY }}" >> $FILENAME
+
+    - name: Commit and push markdown file
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add pr-${{ github.event.number }}.md
+        git commit -m "Add PR #${{ github.event.number }} details"
+        git push

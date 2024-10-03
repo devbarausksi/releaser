@@ -1,12 +1,12 @@
-name: Create Release
+name: Create Release Notes
 
 on:
   release:
     types: [created, edited]
 
 jobs:
-  build:
-    name: Build runner
+  runner:
+    name: Runner
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -45,6 +45,5 @@ jobs:
         run: |
           git add .
           git commit -m "Add release notes for release ${{ github.event.release.tag_name }}"
-          # Push the changes to the same branch (e.g., 'main')
           git remote set-url origin https://devbarausksi:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin main
