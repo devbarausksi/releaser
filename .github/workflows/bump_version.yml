@@ -33,15 +33,16 @@ jobs:
             exit 1
           fi
 
+          FILES=$(basename $FILES)
           echo "RELEASE_FILE=$FILES" >> $GITHUB_ENV
-          echo "RELEASE_CONTENT=$(cat $RELEASE_FILE)" >> $GITHUB_ENV
+          echo "RELEASE_CONTENT=$(cat .changeset/$RELEASE_FILE)" >> $GITHUB_ENV
 
       - name: Copy changelogs
         run: |
           if [ ! -d "releases" ]; then
             mkdir releases
           fi
-          cp ${{ env.RELEASE_FILE }} releases/${{ env.RELEASE_FILE }}
+          cp .changeset/${{ env.RELEASE_FILE }} releases/${{ env.RELEASE_FILE }}
       
       - name: Bump up version
         run: |
