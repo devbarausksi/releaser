@@ -1,4 +1,4 @@
-name: PR to Markdown
+name: Create Changesets File
 
 on:
   pull_request:
