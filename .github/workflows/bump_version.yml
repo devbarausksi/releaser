@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v4
 
-      - name: Check files and get content
+      - name: Check files and copy to releases folder
         run: |
           FILES_COUNT=$(ls .changeset/pr-*.md | wc -l)
 
@@ -38,21 +38,15 @@ jobs:
           fi
 
           FILE=$(basename $(ls .changeset/pr-*.md))
+
           if [ -z "$FILE" ]; then
             echo "No changeset file found"
             exit 1
           fi
+          
           echo "RELEASE_FILE=$FILE" >> $GITHUB_ENV
   
           cp .changeset/$FILE releases/$FILE
-          
-          CONTENT=$(cat ".changeset/$FILE")
-          if [ -z "$CONTENT" ]; then
-            echo "Changeset file is empty"
-            exit 1
-          fi
-
-          echo "RELEASE_CONTENT=$CONTENT" >> $GITHUB_ENV
       
       - name: Bump up version
         run: |
@@ -79,6 +73,6 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ env.RELEASE_TAG }}
-          body: ${{ env.RELEASE_CONTENT }}
+          bodyFile: releases/${{ env.RELEASE_FILE }}
 
       
